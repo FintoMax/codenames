@@ -13,9 +13,15 @@ func CreateUser(db *sqlx.DB, name, passwordHash string) (int, error) {
 	return id, err
 }
 
-func GetUser(db *sqlx.DB, id int) (*models.User, error) {
+func GetUserbyID(db *sqlx.DB, id int) (*models.User, error) {
 	user := &models.User{}
 	err := db.Get(user, "SELECT id, name, password_hash FROM users WHERE id = $1", id)
+	return user, err
+}
+
+func GetUserByUsername(db *sqlx.DB, username string) (*models.User, error) {
+	user := &models.User{}
+	err := db.Get(user, "SELECT id, name, password_hash FROM users WHERE username = $1", username)
 	return user, err
 }
 
