@@ -3,7 +3,7 @@ package models
 import "sync"
 
 type User struct {
-	ID           int    `db:"id"`
+	ID           int64  `db:"id"`
 	Name         string `db:"name"`
 	PasswordHash string `db:"password_hash"`
 }

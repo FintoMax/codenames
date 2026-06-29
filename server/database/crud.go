@@ -21,7 +21,7 @@ func GetUserbyID(db *sqlx.DB, id int) (*models.User, error) {
 
 func GetUserByUsername(db *sqlx.DB, username string) (*models.User, error) {
 	user := &models.User{}
-	err := db.Get(user, "SELECT id, name, password_hash FROM users WHERE username = $1", username)
+	err := db.Get(user, "SELECT id, name, password_hash FROM users WHERE name = $1", username)
 	return user, err
 }
 

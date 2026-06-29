@@ -1,24 +1,35 @@
 package main
 
 import (
-	"codenames/server/config"
-	"codenames/server/database"
 	"log"
+	"net/http"
+	"os"
 
-	"github.com/joho/godotenv"
+	"github.com/jmoiron/sqlx"
+	"github.com/labstack/echo/v5"
+	"github.com/labstack/echo/v5/middleware"
 )
 
 func main() {
-	if err := godotenv.Load(); err != nil {
-		log.Fatal("Error loading .env file")
-	}
-	cfg, err := config.GetConfig()
+	dsn := os.Getenv("DATABASE_URL")
+	db, err := sqlx.Connect("postgres", dsn)
 	if err != nil {
-		log.Fatal(err)
+		log.Fatal("cannot connect to DB", err)
 	}
-	db, err := database.NewDB(cfg)
 	defer db.Close()
-	if err != nil {
-		log.Fatal(err)
+
+	e := echo.New()
+	e.Use(middleware.RequestLogger())
+	e.Use(middleware.Recover())
+	e.GET("/", func(c *echo.Context) error {
+		return c.JSON(http.StatusOK, "Hello, World!")
+	})
+	if err := e.Start(":8080"); err != nil {
+		e.Logger.Info("shutting down the server")
 	}
+
+	e.POST("/auth/signup", createUser)
+	e.POST("/auth/login", login)
+	e.POST("/lobby/create", createLobby)
+	e.POST("/lobby/join", joinLobby)
 }
