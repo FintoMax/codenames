@@ -60,3 +60,27 @@ func DeleteUser(db *sqlx.DB, id int) error {
 	}
 	return nil
 }
+
+func CreateLobbby(db *sqlx.DB, name, passwordHash string, hostID int64) (int, error) {
+	var id int
+	err := db.QueryRow(
+		"INSERT INTO lobbies (name, password_hash, host_id) Values ($1, $2, $3) RETURNING id", name, passwordHash, hostID).Scan(&id)
+	return id, err
+}
+
+func GetLobbyByName(db *sqlx.DB, name string) (*models.Lobby, error) {
+	lobby := &models.Lobby{}
+	err := db.Get(lobby, "SELECT id, name, password_hash, host_id FROM lobbies WHERE name = $1", name)
+	return lobby, err
+}
+
+func GetLobbyByID(db *sqlx.DB, id int) (*models.Lobby, error) {
+	lobby := &models.Lobby{}
+	err := db.Get(lobby, "SELECT id, name, password_hash, host_id FROM lobbies WHERE id = $1", id)
+	return lobby, err
+}
+
+func AddPlayerToLobby(db *sqlx.DB, lobbyID int, userID int64) error {
+	_, err := db.Exec("INSERT INTO lobby_players (lobby_id, user_id) VALUES ($1, $2)", lobbyID, userID)
+	return err
+}
